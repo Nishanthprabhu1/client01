@@ -2,39 +2,48 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>AR Gift | Jewels-AI</title>
+    <title>AR Gift Shop | Jewels-AI</title>
+    
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    
     <style>
-      body { margin: 0; overflow: hidden; font-family: sans-serif; background-color: #000; }
+      body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #000; }
+      
+      /* Shop Branding Overlay */
       #overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 1000;
+        background: rgba(0,0,0,0.95); display: flex; align-items: center; justify-content: center; z-index: 1000;
       }
-      .card {
-        padding: 40px; border-radius: 25px; background: rgba(255, 255, 255, 0.1);
-        border: 1px solid #f1c40f; text-align: center; color: white;
+      .shop-card {
+        padding: 40px; border-radius: 30px; background: rgba(255, 255, 255, 0.05);
+        border: 2px solid #f1c40f; text-align: center; color: white; max-width: 80%;
       }
       #startBtn {
-        background: #f1c40f; border: none; padding: 15px 40px; border-radius: 50px;
-        font-weight: bold; cursor: pointer; margin-top: 20px;
+        background: #f1c40f; border: none; padding: 18px 45px; border-radius: 50px;
+        font-weight: bold; font-size: 1.1em; cursor: pointer; margin-top: 25px; transition: 0.3s;
       }
-      #loading { display: none; margin-top: 15px; color: #f1c40f; }
+      #startBtn:active { transform: scale(0.95); }
+      #loading { display: none; margin-top: 20px; color: #f1c40f; font-style: italic; }
       .hidden { display: none !important; }
     </style>
   </head>
   <body>
 
     <div id="overlay">
-      <div class="card">
-        <h2 style="color:#f1c40f">JEWELS-AI</h2>
-        <p>Scan your 30cm gift for a message!</p>
-        <button id="startBtn">START MAGIC</button>
-        <div id="loading">Fetching your message...</div>
+      <div class="shop-card">
+        <h1 style="color:#f1c40f; margin-bottom: 10px;">JEWELS-AI</h1>
+        <p>Your 30cm Magic Gift is Ready</p>
+        <button id="startBtn">UNLOCK MAGIC</button>
+        <div id="loading">Preparing your personal video...</div>
       </div>
     </div>
 
-    <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+    <a-scene 
+      mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; filterMinCF:0.0001; filterBeta: 0.001;" 
+      vr-mode-ui="enabled: false" 
+      device-orientation-permission-ui="enabled: false">
+      
       <a-assets>
         <video id="giftVideo" preload="auto" loop="true" crossorigin="anonymous" playsinline muted></video>
       </a-assets>
@@ -42,34 +51,15 @@
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity mindar-image-target="targetIndex: 0">
-        <a-circle src="#giftVideo" radius="0.48" position="0 0 0.05" material="side: double"></a-circle>
+        <a-circle src="#giftVideo" 
+                  radius="0.48" 
+                  position="0 0 0.05" 
+                  material="side: double; transparent: true; opacity: 1;">
+        </a-circle>
       </a-entity>
     </a-scene>
 
-    <script>
-      const video = document.querySelector("#giftVideo");
-      const startBtn = document.querySelector("#startBtn");
-      const loading = document.querySelector("#loading");
-      const sceneEl = document.querySelector("a-scene");
+    <script src="script.js"></script>
 
-      // NEW VIDEO ID INTEGRATION
-      const fileID = "14p_-ILD77zQljr4hERJtwfRZrYwd7SUB";
-      video.src = `https://drive.google.com/uc?export=download&id=${fileID}&v=${new Date().getTime()}`;
-
-      startBtn.addEventListener('click', () => {
-        startBtn.style.display = "none";
-        loading.style.display = "block";
-
-        // Wait for video to be ready before starting AR
-        video.play().then(() => {
-          video.muted = false;
-          sceneEl.systems["mindar-image-system"].start(); // Start camera
-          document.querySelector("#overlay").classList.add("hidden");
-        });
-      });
-    </script>
-<script src="script.js"></script>
   </body>
-</html>  
-</body>
 </html>
