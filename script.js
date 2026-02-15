@@ -3,37 +3,33 @@ const startBtn = document.querySelector("#startBtn");
 const loading = document.querySelector("#loading");
 const sceneEl = document.querySelector("a-scene");
 
-// YOUR NEW LOW-MB VIDEO ID
-const fileID = "1dKxS0cUmXhUuonJjE7pmM9oO9AB07LRV";
+// YOUR NEW REDUCED FILE ID
+const fileID = "1N5YusQQxjOi6PJ_Iip808lUGtv_uh6nu";
 
-// Direct link for streaming from Google Drive
+// Direct stream link
 video.src = `https://drive.google.com/uc?export=download&id=${fileID}`;
 
 startBtn.addEventListener('click', () => {
     startBtn.style.display = "none";
     loading.style.display = "block";
 
-    // "oncanplay" triggers as soon as enough data is buffered
-    video.oncanplay = () => {
-        video.play().then(() => {
-            video.muted = false; // Enable audio
-            // Start the AR camera engine
-            if (sceneEl.systems["mindar-image-system"]) {
-                sceneEl.systems["mindar-image-system"].start(); 
-            }
-            document.querySelector("#overlay").style.display = "none";
-        });
+    // Start AR immediately and let the video catch up
+    const startAR = () => {
+        video.play().catch(() => console.log("Video playback waiting for load..."));
+        video.muted = false;
+        
+        if (sceneEl.systems["mindar-image-system"]) {
+            sceneEl.systems["mindar-image-system"].start(); 
+        }
+        document.querySelector("#overlay").style.display = "none";
     };
 
-    // If there is an error (e.g., file not shared correctly)
-    video.onerror = () => {
-        alert("Video could not be loaded. Please check your Google Drive sharing settings.");
-        startBtn.style.display = "block";
-        loading.style.display = "none";
-    };
-
-    // Emergency start if video is already ready
-    if (video.readyState >= 3) {
-        video.oncanplay();
+    // If video is even slightly ready, go!
+    if (video.readyState >= 2) {
+        startAR();
+    } else {
+        // Fallback: Force start after 3 seconds even if loading message is still there
+        video.addEventListener('loadeddata', startAR);
+        setTimeout(startAR, 3000); 
     }
 });
