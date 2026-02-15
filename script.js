@@ -3,23 +3,29 @@ const startBtn = document.querySelector("#startBtn");
 const loading = document.querySelector("#loading");
 const sceneEl = document.querySelector("a-scene");
 
-// NEW VIDEO ID INTEGRATION
+// Use this exact ID from your Google Drive
 const fileID = "14p_-ILD77zQljr4hERJtwfRZrYwd7SUB";
-
-// Cache buster ensures the customer doesn't see the old video
-video.src = `https://drive.google.com/uc?export=download&id=${fileID}&v=${new Date().getTime()}`;
+video.src = `https://drive.google.com/uc?export=download&id=${fileID}`;
 
 startBtn.addEventListener('click', () => {
     startBtn.style.display = "none";
     loading.style.display = "block";
 
-    // Start video and AR system
-    video.play().then(() => {
+    // This function starts the AR camera even if the video is slow
+    const runAR = () => {
+        video.play().catch(() => console.log("Waiting for user..."));
         video.muted = false;
-        sceneEl.systems["mindar-image-system"].start(); // Start camera
-        document.querySelector("#overlay").classList.add("hidden");
-    }).catch((err) => {
-        console.error("Video play failed:", err);
-        alert("Please ensure camera permissions are allowed.");
-    });
+        if (sceneEl.systems["mindar-image-system"]) {
+            sceneEl.systems["mindar-image-system"].start(); 
+        }
+        document.querySelector("#overlay").style.display = "none";
+    };
+
+    // If video is ready, start. If not, wait 3 seconds and force start.
+    if (video.readyState >= 2) {
+        runAR();
+    } else {
+        video.addEventListener('canplay', runAR);
+        setTimeout(runAR, 3000); // 3-second timeout to force the camera on
+    }
 });
