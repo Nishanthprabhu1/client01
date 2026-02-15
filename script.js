@@ -1,30 +1,25 @@
-let mediaRecorder;
-let recordedChunks = [];
+const video = document.querySelector("#giftVideo");
+const startBtn = document.querySelector("#startBtn");
+const loading = document.querySelector("#loading");
+const sceneEl = document.querySelector("a-scene");
 
-async function startRecording() {
-    // Capture the stream from the AR canvas
-    const stream = document.querySelector('canvas').captureStream(30); // 30 FPS
-    mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+// NEW VIDEO ID INTEGRATION
+const fileID = "14p_-ILD77zQljr4hERJtwfRZrYwd7SUB";
 
-    mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) recordedChunks.push(event.data);
-    };
+// Cache buster ensures the customer doesn't see the old video
+video.src = `https://drive.google.com/uc?export=download&id=${fileID}&v=${new Date().getTime()}`;
 
-    mediaRecorder.onstop = () => {
-        const blob = new Blob(recordedChunks, { type: 'video/webm' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'My-JewelsAI-Video.webm';
-        a.click();
-        recordedChunks = [];
-    };
+startBtn.addEventListener('click', () => {
+    startBtn.style.display = "none";
+    loading.style.display = "block";
 
-    mediaRecorder.start();
-    console.log("Recording started...");
-}
-
-function stopRecording() {
-    mediaRecorder.stop();
-    console.log("Recording stopped and saved.");
-}
+    // Start video and AR system
+    video.play().then(() => {
+        video.muted = false;
+        sceneEl.systems["mindar-image-system"].start(); // Start camera
+        document.querySelector("#overlay").classList.add("hidden");
+    }).catch((err) => {
+        console.error("Video play failed:", err);
+        alert("Please ensure camera permissions are allowed.");
+    });
+});
