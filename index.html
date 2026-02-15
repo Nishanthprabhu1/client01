@@ -2,97 +2,69 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>AR Gift Magic | Jewels-AI</title>
-    
+    <title>AR Gift | Jewels-AI</title>
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-    
     <style>
-      body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Arial, sans-serif; }
-      
-      /* Shop Branding Overlay */
+      body { margin: 0; overflow: hidden; font-family: sans-serif; background-color: #000; }
       #overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.9); display: flex;
-        align-items: center; justify-content: center; z-index: 1000;
-        transition: opacity 0.5s ease;
+        background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 1000;
       }
-      
-      .shop-card {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 40px; border-radius: 40px; text-align: center; color: white;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        max-width: 80%;
+      .card {
+        padding: 40px; border-radius: 25px; background: rgba(255, 255, 255, 0.1);
+        border: 1px solid #f1c40f; text-align: center; color: white;
       }
-
-      h2 { margin: 0 0 10px 0; color: #f1c40f; letter-spacing: 3px; text-transform: uppercase; }
-      p { opacity: 0.8; font-size: 14px; line-height: 1.5; }
-
       #startBtn {
-        background: #f1c40f; border: none; padding: 18px 40px;
-        font-size: 16px; font-weight: bold; border-radius: 50px;
-        cursor: pointer; margin-top: 25px; color: #000;
-        text-transform: uppercase; transition: all 0.3s ease;
+        background: #f1c40f; border: none; padding: 15px 40px; border-radius: 50px;
+        font-weight: bold; cursor: pointer; margin-top: 20px;
       }
-
-      #startBtn:hover { background: #fff; transform: scale(1.05); }
-      .hidden { opacity: 0; pointer-events: none; }
+      #loading { display: none; margin-top: 15px; color: #f1c40f; }
+      .hidden { display: none !important; }
     </style>
   </head>
   <body>
 
     <div id="overlay">
-      <div class="shop-card">
-        <h2>JEWELS-AI</h2>
-        <p>Prepare for a magical surprise.<br>Tap the button and point your camera at the gift.</p>
-        <button id="startBtn">Unlock Magic</button>
+      <div class="card">
+        <h2 style="color:#f1c40f">JEWELS-AI</h2>
+        <p>Scan your 30cm gift for a message!</p>
+        <button id="startBtn">START MAGIC</button>
+        <div id="loading">Fetching your message...</div>
       </div>
     </div>
 
-    <a-scene 
-      mindar-image="imageTargetSrc: ./targets.mind; filterMinCF:0.0001; filterBeta: 0.001;" 
-      vr-mode-ui="enabled: false" 
-      device-orientation-permission-ui="enabled: false">
-      
+    <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
       <a-assets>
-        <video id="giftVideo" 
-               preload="auto" loop="true" 
-               crossorigin="anonymous" playsinline muted>
-        </video>
+        <video id="giftVideo" preload="auto" loop="true" crossorigin="anonymous" playsinline muted></video>
       </a-assets>
 
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity mindar-image-target="targetIndex: 0">
-        <a-circle src="#giftVideo" 
-                  radius="0.8" 
-                  material="side: double; transparent: true; opacity: 1;" 
-                  rotation="0 0 0">
-        </a-circle>
+        <a-circle src="#giftVideo" radius="0.48" position="0 0 0.05" material="side: double"></a-circle>
       </a-entity>
     </a-scene>
 
     <script>
       const video = document.querySelector("#giftVideo");
-      const overlay = document.querySelector("#overlay");
       const startBtn = document.querySelector("#startBtn");
+      const loading = document.querySelector("#loading");
+      const sceneEl = document.querySelector("a-scene");
 
-      // 1. YOUR VIDEO CONFIGURATION
-      const fileID = "1G45v5KKKqawhdiuq_mdAiX5yVJ6uTIdQ";
-      
-      // 2. CACHE BUSTER: Ensures new customer videos load instantly
-      const sessionID = new Date().getTime();
-      video.src = `https://drive.google.com/uc?export=download&id=${fileID}&v=${sessionID}`;
+      // NEW VIDEO ID INTEGRATION
+      const fileID = "14p_-ILD77zQljr4hERJtwfRZrYwd7SUB";
+      video.src = `https://drive.google.com/uc?export=download&id=${fileID}&v=${new Date().getTime()}`;
 
-      // 3. START ACTION
       startBtn.addEventListener('click', () => {
+        startBtn.style.display = "none";
+        loading.style.display = "block";
+
+        // Wait for video to be ready before starting AR
         video.play().then(() => {
-          video.muted = false; // Turn on audio
-          overlay.classList.add('hidden');
-        }).catch((err) => {
-          console.error("Autoplay blocked:", err);
+          video.muted = false;
+          sceneEl.systems["mindar-image-system"].start(); // Start camera
+          document.querySelector("#overlay").classList.add("hidden");
         });
       });
     </script>
