@@ -20,14 +20,12 @@
         border: 2px solid #f1c40f; text-align: center; color: white; max-width: 85%;
       }
 
-      #startBtn, #forceStartBtn {
+      #startBtn {
         background: #f1c40f; border: none; padding: 18px 45px; border-radius: 50px;
-        font-weight: bold; font-size: 1.1em; cursor: pointer; margin-top: 25px;
+        font-weight: bold; font-size: 1.1em; cursor: pointer; margin-top: 25px; color: #000;
       }
 
-      #forceStartBtn { background: #e67e22; display: none; } /* Orange for emergency start */
-
-      #loading { display: none; margin-top: 20px; color: #f1c40f; }
+      #loading { display: none; margin-top: 20px; color: #f1c40f; font-weight: bold; }
       .hidden { display: none !important; }
     </style>
   </head>
@@ -35,15 +33,12 @@
 
     <div id="overlay">
       <div class="shop-card">
-        <h1 style="color:#f1c40f;">JEWELS-AI</h1>
+        <h1 style="color:#f1c40f; margin-top: 0;">JEWELS-AI</h1>
         <p>Your 30cm Magic Gift is Ready</p>
         
         <button id="startBtn">UNLOCK MAGIC</button>
         
-        <div id="loading">
-            <p>Fetching your video...</p>
-            <button id="forceStartBtn">Video taking too long? Start Anyway</button>
-        </div>
+        <div id="loading">Starting Camera...</div>
       </div>
     </div>
 
@@ -59,7 +54,7 @@
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <a-entity mindar-image-target="targetIndex: 0">
-        <a-circle src="#giftVideo" radius="0.48" position="0 0 0.05"></a-circle>
+        <a-circle src="#giftVideo" radius="0.48" position="0 0 0.05" material="side: double"></a-circle>
       </a-entity>
     </a-scene>
 
